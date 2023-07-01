@@ -1001,4 +1001,7 @@ void app_main()
 
     debug_set_wifi_logging();
     ESP_LOGI(TAG, "Initial set up done");
+
+	void linux_boot(void);
+	linux_boot();
 }
