@@ -47,6 +47,7 @@
 #include "slave_bt.c"
 #include "stats.h"
 #include "esp_mac.h"
+#include "linux_ipc.h"
 
 static const char TAG[] = "FW_MAIN";
 #define WIFI_TX_RETRY_COUNT       20
@@ -172,7 +173,7 @@ uint8_t dev_mac[MAC_ADDR_LEN] = {0};
 extern void wake_host();
 #endif
 
-static uint8_t get_capabilities()
+uint8_t get_capabilities(void)
 {
     uint8_t cap = 0;
 
@@ -926,14 +927,13 @@ void app_main()
 {
     esp_err_t ret;
     uint8_t prio_q_idx = 0;
-    uint8_t capa = 0;
+    ret = esp_ipc_init();
+	ESP_ERROR_CHECK(ret);
 
 #ifdef CONFIG_BT_ENABLED
     uint8_t mac[MAC_ADDR_LEN] = {0};
 #endif
     debug_log_firmware_version();
-
-    capa = get_capabilities();
 
     /*Initialize NVS*/
     ret = nvs_flash_init();
@@ -966,7 +966,7 @@ void app_main()
 #endif
 
     if_context = interface_insert_driver(event_handler);
-#if CONFIG_ESP_SPI_HOST_INTERFACE
+#if CONFIG_ESP_SPI_HOST_INTERFACE || CONFIG_ESP_SHMEM_HOST_INTERFACE
     datapath = 1;
 #endif
 
@@ -995,11 +995,6 @@ void app_main()
     create_debugging_tasks();
 
     set_gpio_cd_pin();
-
-    /* send capabilities to host */
-    if (datapath || xSemaphoreTake(init_sem, portMAX_DELAY)) {
-        send_bootup_event_to_host(capa);
-    }
 
     debug_set_wifi_logging();
     ESP_LOGI(TAG, "Initial set up done");
