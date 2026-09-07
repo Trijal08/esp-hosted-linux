@@ -582,7 +582,7 @@ DONE:
 static IRAM_ATTR void esp_wifi_tx_done_cb(uint8_t ifidx, uint8_t *data,
                                           uint16_t *len, bool txstatus)
 {
-    if (ifidx == ESP_IF_WIFI_STA) {
+    if (ifidx == WIFI_IF_STA) {
     }
 }
 
@@ -614,7 +614,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGE(TAG, "Failed to set tx done cb\n");
         }
 
-        result = esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, (wifi_rxcb_t)wlan_sta_rx_callback);
+        result = esp_wifi_internal_reg_rxcb(WIFI_IF_STA, (wifi_rxcb_t)wlan_sta_rx_callback);
         if (result) {
             ESP_LOGE(TAG, "Failed to set rx cb\n");
         }
@@ -637,7 +637,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 #endif
         handle_sta_disconnected_event((wifi_event_sta_disconnected_t*) event_data, wakeup_flag);
         station_connected = 0;
-        /*esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, NULL);*/
+        /*esp_wifi_internal_reg_rxcb(WIFI_IF_STA, NULL);*/
         break;
 
     case WIFI_EVENT_SCAN_DONE:
@@ -2128,7 +2128,7 @@ int process_set_ap_config(uint8_t if_type, uint8_t *payload, uint16_t payload_le
     ESP_LOGI(TAG, "tx cb unregister ret=%d\n", ret);
     ret = esp_wifi_register_tx_cb_internal(mgmt_txcb, WIFI_TXCB_MGMT_ID);
     ESP_LOGI(TAG, "tx cb register ret=%d\n", ret);
-    ret = esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_AP, (wifi_rxcb_t)wlan_ap_rx_callback);
+    ret = esp_wifi_internal_reg_rxcb(WIFI_IF_AP, (wifi_rxcb_t)wlan_ap_rx_callback);
 #undef WIFI_TXCB_MGMT_ID
     ESP_ERROR_CHECK(esp_wifi_start());
 send_resp:

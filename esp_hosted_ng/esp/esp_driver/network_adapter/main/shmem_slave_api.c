@@ -18,6 +18,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <rom/rtc.h>
+#include <esp_fw_version.h>
 #include "esp.h"
 #include "esp_log.h"
 #include "interface.h"
