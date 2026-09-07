@@ -1,4 +1,4 @@
-set(COMPONENT_SRCS "app_main.c" "slave_bt.c" "cmd.c" "stats.c" "linux_boot.c" "linux_ipc.c" "linux_flash.c")
+set(COMPONENT_SRCS "app_main.c" "slave_bt.c" "cmd.c" "stats.c" "esp_wifi_compat.c" "linux_boot.c" "linux_ipc.c" "linux_flash.c")
 set(COMPONENT_ADD_INCLUDEDIRS "./include")
 
 if(CONFIG_IDF_TARGET_ESP32S3)
@@ -21,6 +21,14 @@ endif()
 register_component()
 
 target_compile_definitions(${COMPONENT_LIB} PRIVATE)
+
+# The Wi-Fi libraries pull wpa_supplicant objects in only after libmain.a has
+# already been scanned, so the esp_wifi_compat.c shims they need have to be
+# force-linked.
+target_link_libraries(${COMPONENT_LIB} INTERFACE
+                      "-u esp_wifi_sta_get_ie"
+                      "-u esp_wifi_use_supp_pmk_cache"
+                      "-u esp_wifi_is_wpa3_compatible_mode_enabled")
 
 # Add directory of protocomm_priv.h to include paths
 idf_component_get_property(protocomm_dir protocomm COMPONENT_DIR)
